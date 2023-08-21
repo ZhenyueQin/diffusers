@@ -149,6 +149,8 @@ def prepare_mask_and_masked_image(image, mask, height, width, return_image=False
         elif isinstance(image, list) and isinstance(image[0], np.ndarray):
             image = np.concatenate([i[None, :] for i in image], axis=0)
 
+        if isinstance(image, np.ndarray) and len(image.shape) >= 5:
+            image = np.expand_dims(image.squeeze(), 0)
         image = image.transpose(0, 3, 1, 2)
         image = torch.from_numpy(image).to(dtype=torch.float32) / 127.5 - 1.0
 
@@ -167,6 +169,10 @@ def prepare_mask_and_masked_image(image, mask, height, width, return_image=False
         mask[mask >= 0.5] = 1
         mask = torch.from_numpy(mask)
 
+    if len(mask.shape) >= 5:
+        mask = torch.unsqueeze(mask.squeeze(), 0)
+        if image.shape != mask.shape:
+            mask = mask.permute((0, 3, 1, 2))
     masked_image = image * (mask < 0.5)
 
     # n.b. ensure backwards compatibility as old function does not return image
@@ -769,6 +775,11 @@ class StableDiffusionXLControlNetInpaintPipeline(DiffusionPipeline, TextualInver
                 height = image.height
             elif isinstance(image, torch.Tensor):
                 height = image.shape[2]
+            elif isinstance(image, np.ndarray):
+                if len(image.shape) == 4:
+                    height = image.shape[1]
+                else:
+                    height = image.shape[0]
 
             height = (height // 8) * 8  # round down to nearest multiple of 8
 
@@ -777,6 +788,11 @@ class StableDiffusionXLControlNetInpaintPipeline(DiffusionPipeline, TextualInver
                 width = image.width
             elif isinstance(image, torch.Tensor):
                 width = image.shape[3]
+            elif isinstance(image, np.ndarray):
+                if len(image.shape) == 4:
+                    width = image.shape[2]
+                else:
+                    width = image.shape[1]
 
             width = (width // 8) * 8  # round down to nearest multiple of 8
 
