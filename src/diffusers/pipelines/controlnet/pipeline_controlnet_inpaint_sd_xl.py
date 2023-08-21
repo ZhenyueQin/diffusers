@@ -53,7 +53,7 @@ EXAMPLE_DOC_STRING = """
     Examples:
         ```py
         >>> # To be updated when there's a useful ControlNet checkpoint
-        >>> # compatible with SDXL.
+        >>> # compatible with SDXL and support inpainting.
         ```
 """
 

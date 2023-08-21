@@ -1,3 +1,4 @@
+# coding=utf-8
 # Copyright 2023 Harutatsu Akiyama and HuggingFace Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
